@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHS Consultation Risk Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F1F3D;
+  --blue:#1A3A6B;
+  --mid:#2E5FA3;
+  --light-blue:#EBF1FB;
+  --red:#B91C1C;
+  --red-light:#FEF2F2;
+  --amber:#B45309;
+  --amber-light:#FFFBEB;
+  --green:#166534;
+  --green-light:#F0FDF4;
+  --slate:#64748B;
+  --border:#E2E8F0;
+  --bg:#F8FAFC;
+  --white:#FFFFFF;
+  --text:#1E293B;
+  --text-light:#64748B;
+  --font-sans:"DM Sans",system-ui,sans-serif;
+  --font-mono:"DM Mono",monospace;
+}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh}
+.topbar{background:var(--navy);color:white;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:11px;font-weight:600;letter-spacing:0.12em;color:rgba(255,255,255,0.5);text-transform:uppercase}
+.topbar-title{font-size:15px;font-weight:500;color:white}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-badge{font-size:11px;padding:3px 10px;border-radius:4px;font-weight:500}
+.tb-crit{background:rgba(185,28,28,0.3);color:#FCA5A5}
+.tb-high{background:rgba(180,83,9,0.3);color:#FCD34D}
+.tb-update{font-size:11px;color:rgba(255,255,255,0.4)}
+.main{max-width:1100px;margin:0 auto;padding:2rem}
+.alert-bar{background:var(--red-light);border:1px solid #FECACA;border-radius:10px;padding:14px 18px;margin-bottom:1.5rem;display:none}
+.alert-bar.show{display:block}
+.alert-bar-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.alert-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.alert-bar-title{font-size:13px;font-weight:600;color:var(--red);flex:1}
+.alert-bar-dismiss{font-size:11px;color:var(--red);cursor:pointer;border:1px solid #FCA5A5;border-radius:4px;padding:2px 10px;background:none}
+.alert-items{display:flex;flex-direction:column;gap:6px}
+.alert-item{background:rgba(255,255,255,0.7);border-radius:6px;padding:8px 12px;cursor:pointer;border-left:3px solid var(--red)}
+.alert-item:hover{background:white}
+.alert-item-name{font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px}
+.alert-item-what{font-size:11px;color:#7F1D1D;line-height:1.4}
+.countdown-bar{background:linear-gradient(135deg,#7F1D1D 0%,#991B1B 100%);color:white;border-radius:10px;padding:12px 18px;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px}
+.cd-days{font-size:28px;font-weight:600;font-family:var(--font-mono);min-width:40px}
+.cd-label{font-size:12px;opacity:0.8;line-height:1.4}
+.cd-label strong{display:block;font-size:13px;opacity:1}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.stat{background:white;border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-val{font-size:28px;font-weight:600;margin-bottom:2px}
+.stat-lbl{font-size:11px;color:var(--text-light);font-weight:500}
+.stat-sub{font-size:10px;color:var(--text-light);margin-top:2px}
+.tabs{display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--border)}
+.tab{font-size:13px;font-weight:500;padding:8px 16px;cursor:pointer;border:none;background:none;color:var(--text-light);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--mid);border-bottom-color:var(--mid)}
+.tab.dot{position:relative}
+.tab.dot::after{content:"";position:absolute;top:8px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--red)}
+.section-hdr{font-size:11px;font-weight:600;color:var(--text-light);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section-hdr.red{color:var(--red)}
+.section-hdr.amber{color:var(--amber)}
+.card{background:white;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:6px;cursor:pointer;transition:all 0.15s;border-left:4px solid transparent}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08);transform:translateY(-1px)}
+.card.esc{border-left-color:var(--red)}
+.card.warn{border-left-color:var(--amber)}
+.card.info{border-left-color:var(--mid)}
+.card.newp{border-left-color:var(--green)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+.card-name{font-size:13px;font-weight:600;color:var(--text)}
+.card-num{font-size:11px;color:var(--text-light);margin-right:4px;font-weight:400}
+.card-badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.card-what{font-size:12px;color:var(--text-light);line-height:1.5}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;white-space:nowrap;letter-spacing:0.02em}
+.b-crit{background:var(--red-light);color:var(--red)}
+.b-high{background:var(--amber-light);color:var(--amber)}
+.b-med{background:var(--light-blue);color:var(--mid)}
+.b-clos{background:#F1F5F9;color:var(--slate)}
+.b-now{background:var(--red-light);color:var(--red)}
+.b-near{background:var(--amber-light);color:var(--amber)}
+.b-unk{background:#F1F5F9;color:var(--slate)}
+.b-new{background:var(--green-light);color:var(--green)}
+.ct{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.ct-esc{background:var(--red-light);color:var(--red)}
+.ct-warn{background:var(--amber-light);color:var(--amber)}
+.ct-info{background:var(--light-blue);color:var(--mid)}
+.ct-new{background:var(--green-light);color:var(--green)}
+.no-change-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.nc-pill{font-size:11px;padding:3px 10px;border-radius:20px;background:white;border:1px solid var(--border);color:var(--text-light);cursor:pointer;transition:all 0.1s}
+.nc-pill:hover{background:var(--light-blue);color:var(--mid);border-color:#BFDBFE}
+.detail{background:white;border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:1rem;display:none}
+.detail.show{display:block}
+.detail-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+.detail-title{font-size:16px;font-weight:600;color:var(--text)}
+.detail-icb{font-size:12px;color:var(--text-light);margin-top:3px}
+.detail-close{background:none;border:none;cursor:pointer;color:var(--text-light);font-size:20px;line-height:1}
+.detail-change{background:var(--red-light);padding:10px 14px;border-radius:8px;border-left:4px solid var(--red);margin-bottom:1rem}
+.detail-change-lbl{font-size:10px;font-weight:600;color:var(--red);margin-bottom:4px;letter-spacing:0.05em;text-transform:uppercase}
+.detail-change-text{font-size:12px;color:#7F1D1D;line-height:1.6}
+.detail-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1rem}
+.df label{font-size:10px;color:var(--text-light);display:block;margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase}
+.df p{font-size:12px;color:var(--text);font-weight:500}
+.divider{height:1px;background:var(--border);margin:1rem 0}
+.ds{margin-bottom:10px}
+.ds label{font-size:10px;color:var(--text-light);display:block;margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase}
+.ds p{font-size:12px;color:var(--text);line-height:1.6}
+.detail-actions{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+.btn{font-size:12px;font-weight:500;padding:7px 16px;border-radius:6px;cursor:pointer;border:none;transition:all 0.15s;font-family:var(--font-sans)}
+.btn-primary{background:var(--mid);color:white}
+.btn-primary:hover{background:var(--blue)}
+.btn-secondary{background:white;color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg)}
+.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-row label{font-size:12px;color:var(--text-light)}
+.filter-row select{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:white;color:var(--text);font-family:var(--font-sans)}
+.pr-row{background:white;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.1s}
+.pr-row:hover{background:var(--bg);border-color:#CBD5E1}
+.pr-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.pr-num{font-size:11px;color:var(--text-light);min-width:24px;flex-shrink:0;font-family:var(--font-mono)}
+.pr-name{font-size:12px;font-weight:500;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr-icb{font-size:10px;color:var(--text-light);flex-shrink:0;margin-right:4px}
+.pr-badges{display:flex;gap:4px;flex-shrink:0}
+.hist-entry{background:white;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:6px}
+.hist-date{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.hist-sum{font-size:12px;color:var(--text-light);line-height:1.5}
+.hist-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text-light);font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:8px;opacity:0.4}
+.info-panel{background:white;border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin-bottom:1rem}
+.info-panel h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.info-panel p{font-size:12px;color:var(--text-light);line-height:1.6;margin-bottom:8px}
+.info-box{background:var(--light-blue);border-radius:8px;padding:12px 14px;border-left:4px solid var(--mid)}
+.info-box label{font-size:10px;font-weight:600;color:var(--mid);display:block;margin-bottom:4px;letter-spacing:0.05em;text-transform:uppercase}
+.info-box p{font-size:12px;color:var(--text);line-height:1.5;margin:0}
+.status-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 10px;border-radius:20px;margin-top:8px}
+.status-live{background:var(--green-light);color:var(--green)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.source-list{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.source-link{font-size:11px;color:var(--mid);text-decoration:none;font-family:var(--font-mono)}
+.source-link:hover{text-decoration:underline}
+@media(max-width:768px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .detail-meta{grid-template-columns:1fr 1fr}
+  .topbar-right .tb-update{display:none}
+  .main{padding:1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">NHS England</span>
+    <span style="color:rgba(255,255,255,0.2)">|</span>
+    <span class="topbar-title">Consultation Risk Tracker</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-badge tb-crit" id="top-crit">— Critical</span>
+    <span class="topbar-badge tb-high" id="top-high">— High</span>
+    <span class="tb-update" id="top-updated">Loading...</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="countdown-bar" id="countdown-bar" style="display:none">
+    <div class="cd-days" id="cd-days">—</div>
+    <div class="cd-label"><strong>Ward 31A — days until closure</strong>No formal S244 consultation plan published · CNTW · N East & N Cumbria</div>
+  </div>
+
+  <div class="alert-bar" id="alert-bar">
+    <div class="alert-bar-top">
+      <div class="alert-dot"></div>
+      <div class="alert-bar-title" id="alert-title">Unreviewed changes</div>
+      <button class="alert-bar-dismiss" onclick="dismissAlerts()">Dismiss</button>
+    </div>
+    <div class="alert-items" id="alert-items"></div>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="stat-val" style="color:var(--red)" id="s-crit">—</div><div class="stat-lbl">Critical / NOW</div><div class="stat-sub">Immediate action</div></div>
+    <div class="stat"><div class="stat-val" style="color:var(--amber)" id="s-high">—</div><div class="stat-lbl">High risk</div><div class="stat-sub">Close monitoring</div></div>
+    <div class="stat"><div class="stat-val" id="s-tot">—</div><div class="stat-lbl">Total proposals</div><div class="stat-sub" id="s-footprint">26 ICB footprints</div></div>
+    <div class="stat"><div class="stat-val" id="s-wks">—</div><div class="stat-lbl">Weeks tracked</div><div class="stat-sub" id="s-upd">no updates yet</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-week" onclick="setTab('week')">This week</button>
+    <button class="tab" id="tab-all" onclick="setTab('all')">All proposals</button>
+    <button class="tab" id="tab-hist" onclick="setTab('hist')">History</button>
+    <button class="tab" id="tab-about" onclick="setTab('about')">About</button>
+  </div>
+
+  <div id="view-week"></div>
+  <div id="view-all" style="display:none"></div>
+  <div id="view-hist" style="display:none"></div>
+  <div id="view-about" style="display:none">
+    <div class="info-panel">
+      <h3>NHS Consultation Risk Tracker — Read-only view</h3>
+      <p>This dashboard tracks 32 NHS service reconfiguration proposals across 26 ICB footprints in England, monitoring compliance with Section 244 consultation obligations under the NHS Act 2006.</p>
+      <p>Data is updated by the NHS England Service Reconfiguration Directorate team using the Claude.ai dashboard. This page reads from shared storage and reflects the latest saved results automatically.</p>
+      <div class="status-badge status-live"><span class="status-dot"></span>Live data — updates automatically when the team saves new results</div>
+    </div>
+    <div class="info-panel">
+      <h3>Risk levels</h3>
+      <p><strong>Critical / NOW</strong> — S244 obligation at immediate risk. Action required before any service change takes place.</p>
+      <p><strong>High / NEAR</strong> — Significant risk within 12 months. Active monitoring and early engagement required.</p>
+      <p><strong>Medium / FAR</strong> — Risk identified but not imminent. Monitor and reassess quarterly.</p>
+      <p><strong>Closed</strong> — Precedent case. Process concluded but outcome informs approach to live proposals.</p>
+    </div>
+    <div class="info-panel">
+      <h3>Sources monitored</h3>
+      <p>For each proposal the tracker checks: trust board papers, HOSC and joint scrutiny committee minutes, ICB board publications, CQC inspection reports and enforcement notices, parliamentary written questions, IRP activity, and news and press releases.</p>
+      <div class="info-box" style="margin-top:10px">
+        <label>Contact</label>
+        <p>For questions about specific proposals contact the NHS England Service Reconfiguration Directorate. For technical issues with this dashboard contact the team directly.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail" id="detail"></div>
+</div>
+
+<script>
+const SHARED_KEY = "nhs-shared-v1";
+const PERSONAL_KEY = "nhs-complete-v1";
+const WARD31A = new Date("2026-07-31");
+
+const DEFAULT_PROPOSALS = [
+  {id:1,n:"1",name:"Scarborough — Maternity",icb:"Humber & N Yorkshire",region:"North East & Yorks",risk:"Critical",tl:"NOW",changed:true,ct:"Estate-driven reduction imminent",cw:"Trust board confirms service reduction risk from roof failure. No consultation commenced.",why:"Trust board confirms service reduction risk contingent on roof failure.",esc:"N Yorkshire OSC receiving updates. CQC conditions in place.",action:"Require trust to formally state whether any reduction constitutes significant change.",sources:["https://www.yorkhospitals.nhs.uk/about-us/board-of-directors/board-of-directors-papers/","https://democracy.northyorks.gov.uk/mgCommitteeDetails.aspx?ID=1014"]},
+  {id:2,n:"2",name:"RCHT Cornwall — Women & Children's",icb:"Cornwall & IoS",region:"South West",risk:"Critical",tl:"NOW",changed:true,ct:"OBC window lapsed",cw:"Spring 2026 OBC window passed. No S244 consultation commenced.",why:"Refreshed OBC due spring 2026. No S244 consultation commenced.",esc:"Cornwall Council scrutiny unengaged.",action:"Confirm whether OBC submitted. Require consultation before further approvals.",sources:["https://building.royalcornwallhospitals.nhs.uk/women-childrens-hospital/"]},
+  {id:3,n:"3",name:"UHSx Sussex — Ockenden",icb:"Surrey & Sussex",region:"South East",risk:"Critical",tl:"NOW",changed:true,ct:"Scope confirmed — Nottingham imminent",cw:"Full scope confirmed 1,000+ cases. Nottingham Ockenden report due this month.",why:"Review scope formally set. Nottingham report creates immediate pressure.",esc:"Health Secretary directly engaged. No S244 guidance issued.",action:"Issue S244/safety investigation guidance before Nottingham report publishes.",sources:["https://www.uhsussex.nhs.uk/","https://democracy.eastsussex.gov.uk/mgCommitteeDetails.aspx?ID=154"]},
+  {id:4,n:"4",name:"CNTW — Ward 31A eating disorders",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"Critical",tl:"NOW",changed:true,ct:"55 days to closure",cw:"Closure 31 July. Engagement started but no formal S244 consultation plan published.",why:"Identical pattern to Yewdale. No timetable for long-term model.",esc:"BMA publicly opposed. Engagement running but S244 not commenced.",action:"Require CNTW/TEWV to publish formal S244 consultation plan immediately.",sources:["https://www.cntw.nhs.uk/about-us/board-meetings/","https://democracy.newcastle.gov.uk/mgCommitteeDetails.aspx?ID=346"]},
+  {id:5,n:"5",name:"NCIC — Recovery Programme",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"High",tl:"NOW",changed:true,ct:"CQC Section 31 enforcement",cw:"CQC Section 31 confirmed 21 May. Carlisle ED too small for volume.",why:"Section 31 creates bypass mechanism for S244.",esc:"CQC Section 31 public. Cumberland councillors engaged.",action:"Formally confirm Section 31 does not exempt from S244.",sources:["https://www.ncic.nhs.uk/publications/board-of-directors-papers","https://www.cqc.org.uk/provider/RNN"]},
+  {id:6,n:"6",name:"Great North Alliance — Consolidation",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"High",tl:"NOW",changed:false,ct:null,cw:null,why:"Cancer, surgery, paediatrics and audiology consolidation across 4 trusts with no S244 process.",esc:"No HOSCs engaged on Alliance-level decisions.",action:"Require ICB to confirm which consolidations are implemented.",sources:["https://www.greatnorthhealthcare.nhs.uk/"]},
+  {id:7,n:"7",name:"University Hospitals Tees — Reconfiguration",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"High",tl:"NEAR",changed:true,ct:"Scrutiny raised S244 concerns",cw:"Stockton select committee 19 May: 558-post cut confirmed. Scrutiny stated consultation must be undertaken.",why:"Case for change agreed before formal engagement.",esc:"Stockton Council select committee engaged.",action:"Require ICB S244 assessment before business case goes to NHS England.",sources:["https://moderngov.stockton.gov.uk/mgCommitteeDetails.aspx?ID=526"]},
+  {id:8,n:"8",name:"Cornwall — Walk-in Centres",icb:"Cornwall & IoS",region:"South West",risk:"High",tl:"UNKNOWN",changed:false,ct:null,cw:null,why:"ICB board states community bed demand will reduce. Falmouth Boscawen closed May 2026.",esc:"564-signature Fowey petition.",action:"Require ICB to disclose whether formal review planned.",sources:[]},
+  {id:9,n:"9",name:"UHL-UHN — Cardiology & Cancer",icb:"LLR / Northamptonshire",region:"Midlands",risk:"High",tl:"NEAR",changed:false,ct:null,cw:null,why:"Group Clinical Strategy Feb 2026 proposes consolidation — S244 trigger language.",esc:"Northamptonshire and Leicestershire HOSCs briefed.",action:"Require formal S244 consultation before implementation.",sources:["https://www.uhl-tr.nhs.uk/about-us/board-of-directors/board-papers/"]},
+  {id:10,n:"10",name:"Torbay — Section 75 Unwinding",icb:"Devon",region:"South West",risk:"High",tl:"NEAR",changed:false,ct:null,cw:null,why:"Disentangling 20+ years of integrated care under financial pressure.",esc:"Torbay Council directly implicated.",action:"Establish active monitoring with clear consultation triggers.",sources:["https://www.torbayandsouthdevon.nhs.uk/about-us/trust-board/board-papers/"]},
+  {id:11,n:"11",name:"Norwich Walk-in Centre",icb:"Norfolk & Suffolk",region:"East of England",risk:"High",tl:"NEAR",changed:false,ct:null,cw:null,why:"Consultation cancelled May 2025. £280m deficit. New ICB April 2026.",esc:"Norfolk HOSC active.",action:"Monitor new ICB for reproposal.",sources:["https://www.norfolk.gov.uk/article/40376/Health-Overview-and-Scrutiny-Committee"]},
+  {id:12,n:"12",name:"CNTW — Older Peoples Mental Health",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"20 beds reprovided citing 2016 consultation — same argument failed at Yewdale.",esc:"Newcastle & Gateshead HOSC engaged.",action:"Adequacy of 2016 consultation must be assessed.",sources:["https://www.cntw.nhs.uk/about-us/board-meetings/"]},
+  {id:13,n:"13",name:"CDDFT — Shotley Bridge",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"New service elements need checking against previous consultation.",esc:"Durham County OSC engaged.",action:"Fresh S244 assessment if service model differs materially.",sources:["https://www.durham.gov.uk/healthscrutiny"]},
+  {id:14,n:"14",name:"CHFT Calderdale — Implementation",icb:"West Yorkshire",region:"North East & Yorks",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Construction August 2026. Individual enabling changes may need separate S244.",esc:"Calderdale & Kirklees JHOSC active.",action:"Concerns must be raised before August 2026.",sources:["https://www.cht.nhs.uk/about-chft/board-and-governance/board-papers/"]},
+  {id:15,n:"15",name:"UHP Plymouth — Mount Gould",icb:"Devon",region:"South West",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Trust language triggers S244.",esc:"Plymouth City Council scrutiny has interest.",action:"Significant change assessment required.",sources:["https://www.plymouthhospitals.nhs.uk/board-of-directors/board-meetings-and-papers"]},
+  {id:16,n:"16",name:"East Sussex — Paediatrics Eastbourne",icb:"Surrey & Sussex",region:"South East",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"HOSC scrutiny concluded March 2026. Precedent for classification dispute.",esc:"East Sussex HOSC concluded scrutiny.",action:"Classification must not be made unilaterally.",sources:["https://democracy.eastsussex.gov.uk/mgCommitteeDetails.aspx?ID=154"]},
+  {id:17,n:"17",name:"East Sussex — Cardiology Mitigations",icb:"Surrey & Sussex",region:"South East",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Transport mitigations for ~600 deprived Hastings patients undelivered 4 years on.",esc:"East Sussex HOSC still receiving reports.",action:"Require fixed delivery deadline.",sources:["https://democracy.eastsussex.gov.uk/mgCommitteeDetails.aspx?ID=154"]},
+  {id:18,n:"18",name:"TEWV — Eating Disorder Pathway",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Darlington capacity unassessed. Out-of-area placements possible from July.",esc:"Durham OSC, Tees Valley and Newcastle/Gateshead HOSC.",action:"Assess Darlington capacity before Ward 31A closes.",sources:["https://www.tewv.nhs.uk/about-us/board-of-directors/board-meetings-and-papers/"]},
+  {id:19,n:"19",name:"Devon Partnership — Langdon Hospital",icb:"Devon",region:"South West",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"CQC warning notice June 2025. New strategy 2026-30 in development.",esc:"Devon County OSC has interest.",action:"Monitor trust strategy for S244-triggering proposals.",sources:["https://www.dpt.nhs.uk/about-us/board/board-papers"]},
+  {id:20,n:"20",name:"Yewdale Ward — Precedent",icb:"N East & N Cumbria",region:"North East & Yorks",risk:"Closed",tl:"NA",changed:false,ct:null,cw:null,why:"ICB own review found consultation inadequate; ICB declined to act.",esc:"MP for Whitehaven engaged.",action:"Use as worked example for ICB enforcement guidance.",sources:["https://questions-statements.parliament.uk/"]},
+  {id:21,n:"21",name:"Liverpool Women's Hospital",icb:"Cheshire & Merseyside",region:"North West",risk:"High",tl:"NEAR",changed:true,ct:"Engagement launched 2 June — S244 adequacy contested",cw:"Six-week engagement launched 2 June–14 July 2026. Three public events scheduled. Campaign contesting whether longer-term relocation options are covered.",why:"Engagement framed as safety improvement. Longer-term full relocation not consulted on.",esc:"Save Liverpool Womens Hospital campaign active. Engagement closes 14 July.",action:"Require ICB to confirm S244 compliance for longer-term options before autumn 2026 decision.",sources:["https://www.cheshireandmerseyside.nhs.uk/your-health/women-s-hospital-services-in-liverpool/","https://www.gynaeandmaternityliverpool.nhs.uk/"]},
+  {id:22,n:"22",name:"Black Country Healthcare — Goscote House",icb:"Black Country",region:"Midlands",risk:"High",tl:"NOW",changed:true,ct:"New — classification disputed",cw:"Services from 4 sites relocating summer 2026. Classification as site consolidation disputed.",why:"Classification dispute mirrors ESHT paediatrics precedent.",esc:"Engagement closed. No HOSC formally engaged.",action:"Require formal significant change assessment.",sources:[]},
+  {id:23,n:"23",name:"St Mary's Paddington — Redevelopment",icb:"NW London",region:"London",risk:"High",tl:"NEAR",changed:true,ct:"Second consultation live 4 June–17 July",cw:"Second consultation on designs 4 June–17 July 2026. S244 may apply to service model changes.",why:"Consultation framed as design review — service changes may not be separately consulted on.",esc:"Three public events June–July 2026.",action:"Require S244 assessment of service changes in redevelopment.",sources:["https://www.imperial.nhs.uk/about-us/news/"]},
+  {id:24,n:"24",name:"Evelina — Children's Cancer",icb:"SE London",region:"London",risk:"High",tl:"NOW",changed:false,ct:null,cw:null,why:"Services transferring from Royal Marsden to Evelina. Move not before October 2026.",esc:"SoS declined call-in. Implementation active.",action:"Monitor implementation phase.",sources:["https://www.transformationpartners.nhs.uk/childrenscancercentre/"]},
+  {id:25,n:"25",name:"Mount Vernon Cancer Centre",icb:"Central East",region:"East of England",risk:"High",tl:"NEAR",changed:false,ct:null,cw:null,why:"Consultation completed Jan–March 2026. Decision pending under new Central East ICB.",esc:"New ICB inherited decision.",action:"Confirm decision status under new ICB.",sources:["https://mvccreview.nhs.uk/"]},
+  {id:26,n:"26",name:"Mid & South Essex — Community Beds",icb:"Essex",region:"East of England",risk:"High",tl:"NEAR",changed:false,ct:null,cw:null,why:"Consultation completed 2024. Status under new Essex ICB unclear.",esc:"Working group recommendations July 2025.",action:"Confirm final decision under new Essex ICB.",sources:["https://virtualviews.midandsouthessex.ics.nhs.uk/changes-to-services"]},
+  {id:27,n:"27",name:"SaTH — Future Fit",icb:"Shropshire, STW",region:"Midlands",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Construction underway. Women's & children's services relocating from PRH.",esc:"Telford community continues to oppose.",action:"Assess individual service relocations against S244 obligations.",sources:["https://www.sath.nhs.uk/about-us/hospitals-transformation-programme/"]},
+  {id:28,n:"28",name:"Birmingham & Solihull — UTC",icb:"Birmingham & Solihull",region:"Midlands",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Formal consultation February–April 2026 completed. Decision pending.",esc:"Consultation completed.",action:"Monitor decision.",sources:["https://www.birminghamsolihull.icb.nhs.uk/"]},
+  {id:29,n:"29",name:"BNSSG — Frenchay Rehab Beds",icb:"Bristol, NS & SG",region:"South West",risk:"Medium",tl:"NEAR",changed:true,ct:"Service withdrawal without S244",cw:"ICB abandoned Frenchay rehab beds May 2026. No formal significant change assessment published.",why:"Withdrawal of committed bedded service framed as policy shift.",esc:"South Gloucestershire Council OSC informed.",action:"Require formal significant change assessment.",sources:["https://bnssghealthiertogether.org.uk/"]},
+  {id:30,n:"30",name:"Kent & Medway — Deficit / Service Risk",icb:"Kent & Medway",region:"South East",risk:"High",tl:"UNKNOWN",changed:false,ct:null,cw:null,why:"£198m deficit. Alarm over adult mental health provision.",esc:"External financial support active.",action:"Require ICB to publish schedule of service changes.",sources:["https://www.kentandmedway.icb.nhs.uk/","https://democracy.kent.gov.uk/mgCommitteeDetails.aspx?ID=137"]},
+  {id:31,n:"31",name:"East Kent — Stroke Services",icb:"Kent & Medway",region:"South East",risk:"Medium",tl:"UNKNOWN",changed:false,ct:null,cw:null,why:"East Kent stroke reconfiguration on Kent HOSC work programme.",esc:"Kent HOSC work programme.",action:"Monitor HOSC work programme.",sources:["https://democracy.kent.gov.uk/mgCommitteeDetails.aspx?ID=137"]},
+  {id:32,n:"32",name:"Medway / Dartford — Group Model",icb:"Kent & Medway",region:"South East",risk:"Medium",tl:"NEAR",changed:false,ct:null,cw:null,why:"Proposed group between Medway NHS FT and Dartford & Gravesham on HOSC work programme.",esc:"Kent HOSC work programme.",action:"Monitor for service consolidation triggering S244.",sources:["https://democracy.kent.gov.uk/mgCommitteeDetails.aspx?ID=137"]}
+];
+
+let proposals = JSON.parse(JSON.stringify(DEFAULT_PROPOSALS));
+let weekLog = [];
+let lastUpdated = null;
+let weekCommencing = null;
+let alertItems = [];
+let dismissed = false;
+
+async function loadData() {
+  try {
+    // Try shared storage first
+    const r = await window.storage.get(SHARED_KEY, true);
+    if (r && r.value) {
+      const s = JSON.parse(r.value);
+      if (s.proposals && s.proposals.length >= 20) {
+        DEFAULT_PROPOSALS.forEach(def => {
+          const sv = s.proposals.find(p => p.id === def.id);
+          if (sv) { def.risk=sv.risk; def.tl=sv.tl; def.changed=sv.changed; def.ct=sv.ct||null; def.cw=sv.cw||null; }
+        });
+        proposals = DEFAULT_PROPOSALS;
+      }
+      if (s.weekLog) weekLog = s.weekLog;
+      if (s.lastUpdated) lastUpdated = s.lastUpdated;
+      if (s.weekCommencing) weekCommencing = s.weekCommencing;
+      if (s.alerts) alertItems = s.alerts.items || [];
+    }
+  } catch(e) {}
+  render();
+}
+
+function rc(r){return r==="Critical"?"b-crit":r==="High"?"b-high":r==="Closed"?"b-clos":"b-med"}
+function tc(t){return t==="NOW"?"b-now":t==="NEAR"?"b-near":"b-unk"}
+function cardBorder(ct){
+  if(!ct) return "";
+  if(ct.includes("days")||ct.includes("lapsed")||ct.includes("→")) return "esc";
+  if(ct.includes("Section 31")||ct.includes("Scrutiny")||ct.includes("enforcement")) return "warn";
+  if(ct.includes("New —")||ct.includes("launched")||ct.includes("withdrawal")) return "newp";
+  return "info";
+}
+function ctCls(p){
+  const c=cardBorder(p.ct||"");
+  return c==="esc"?"ct-esc":c==="warn"?"ct-warn":c==="newp"?"ct-new":"ct-info";
+}
+function daysTo(){return Math.max(0,Math.ceil((WARD31A-new Date())/(1000*60*60*24)));}
+
+function render() {
+  // Topbar
+  document.getElementById("top-crit").textContent = proposals.filter(p=>p.risk==="Critical").length + " Critical";
+  document.getElementById("top-high").textContent = proposals.filter(p=>p.risk==="High").length + " High";
+  document.getElementById("top-updated").textContent = lastUpdated ? "Updated " + lastUpdated : "No updates yet";
+
+  // Stats
+  document.getElementById("s-crit").textContent = proposals.filter(p=>p.risk==="Critical").length;
+  document.getElementById("s-high").textContent = proposals.filter(p=>p.risk==="High").length;
+  document.getElementById("s-tot").textContent = proposals.filter(p=>p.risk!=="Closed").length;
+  document.getElementById("s-wks").textContent = weekLog.length;
+  document.getElementById("s-upd").textContent = lastUpdated ? "last: " + lastUpdated : "no updates yet";
+
+  // Countdown
+  const days = daysTo();
+  if (days > 0 && days <= 60) {
+    document.getElementById("countdown-bar").style.display = "flex";
+    document.getElementById("cd-days").textContent = days;
+  }
+
+  // Alerts
+  const unread = alertItems.filter(a=>!a.reviewed && (a.risk==="Critical"||a.risk==="High"));
+  if (unread.length > 0 && !dismissed) {
+    document.getElementById("alert-bar").classList.add("show");
+    document.getElementById("alert-title").textContent = unread.filter(a=>a.risk==="Critical").length + " critical + " + unread.filter(a=>a.risk==="High").length + " high-risk changes need attention";
+    document.getElementById("alert-items").innerHTML = unread.slice(0,4).map(a=>`
+      <div class="alert-item" onclick="showDetailById(${a.proposalId})">
+        <div class="alert-item-name">${a.name}</div>
+        <div class="alert-item-what">${a.what}</div>
+      </div>`).join("");
+  }
+
+  renderWeek();
+}
+
+function dismissAlerts() { dismissed=true; document.getElementById("alert-bar").classList.remove("show"); }
+
+function makeCard(p) {
+  return `<div class="card ${cardBorder(p.ct||"")}" onclick="showDetailById(${p.id})">
+    <div class="card-top">
+      <span class="card-name"><span class="card-num">${p.n}.</span>${p.name}</span>
+      <div class="card-badges">
+        <span class="badge ${rc(p.risk)}">${p.risk}</span>
+        <span class="badge ${tc(p.tl)}">${p.tl}</span>
+        ${p.ct?`<span class="ct ${ctCls(p)}">${p.ct}</span>`:""}
+      </div>
+    </div>
+    <div class="card-what">${p.cw||""}</div>
+  </div>`;
+}
+
+function renderWeek() {
+  const v = document.getElementById("view-week");
+  const changed = proposals.filter(p=>p.changed&&p.risk!=="Closed");
+  const nochange = proposals.filter(p=>!p.changed&&p.risk!=="Closed");
+  const closed = proposals.find(p=>p.risk==="Closed");
+  if (!changed.length && !lastUpdated) {
+    v.innerHTML=`<div class="empty"><div class="empty-icon">📋</div>No updates have been saved yet.<br>The team updates this dashboard regularly — check back soon.</div>`;
+    return;
+  }
+  let html = "";
+  const crit=changed.filter(p=>p.risk==="Critical");
+  const high=changed.filter(p=>p.risk==="High");
+  const med=changed.filter(p=>p.risk==="Medium");
+  if(crit.length) html+=`<div style="margin-bottom:1.5rem"><div class="section-hdr red">Requires immediate attention — ${crit.length} proposal${crit.length!==1?"s":""}</div>${crit.map(makeCard).join("")}</div>`;
+  if(high.length) html+=`<div style="margin-bottom:1.5rem"><div class="section-hdr amber">Risk worsening — ${high.length} proposal${high.length!==1?"s":""}</div>${high.map(makeCard).join("")}</div>`;
+  if(med.length) html+=`<div style="margin-bottom:1.5rem"><div class="section-hdr">Developments to note — ${med.length}</div>${med.map(makeCard).join("")}</div>`;
+  if(nochange.length){
+    html+=`<div><div class="section-hdr">No change this week — ${nochange.length} proposals</div><div class="no-change-pills">`;
+    html+=nochange.map(p=>`<span class="nc-pill" onclick="showDetailById(${p.id})">${p.n}. ${p.name.split("—")[0].trim()}</span>`).join("");
+    if(closed) html+=`<span class="nc-pill" onclick="showDetailById(${closed.id})" style="opacity:0.5">20. Yewdale</span>`;
+    html+="</div></div>";
+  }
+  v.innerHTML = html;
+}
+
+function renderAll() {
+  const v = document.getElementById("view-all");
+  const rf = document.getElementById("all-r") ? document.getElementById("all-r").value : "all";
+  const rcf = document.getElementById("all-rc") ? document.getElementById("all-rc").value : "all";
+  let filtered = proposals;
+  if(rf!=="all") filtered=filtered.filter(p=>p.region===rf);
+  if(rcf!=="all") filtered=filtered.filter(p=>p.risk===rcf);
+  const regions=[...new Set(DEFAULT_PROPOSALS.map(p=>p.region))];
+  let html=`<div class="filter-row">
+    <label>Region:</label><select id="all-r" onchange="renderAll()"><option value="all">All regions</option>${regions.map(r=>`<option value="${r}"${rf===r?" selected":""}>${r}</option>`).join("")}</select>
+    <label>Risk:</label><select id="all-rc" onchange="renderAll()"><option value="all">All risks</option><option value="Critical"${rcf==="Critical"?" selected":""}>Critical</option><option value="High"${rcf==="High"?" selected":""}>High</option><option value="Medium"${rcf==="Medium"?" selected":""}>Medium</option></select>
+  </div>`;
+  ["Critical","High","Medium","Closed"].forEach(r=>{
+    const grp=filtered.filter(p=>p.risk===r);if(!grp.length)return;
+    html+=`<div style="margin-bottom:1rem"><div class="section-hdr">${r} — ${grp.length}</div>`;
+    grp.forEach(p=>{html+=`<div class="pr-row" onclick="showDetailById(${p.id})">
+      <div class="pr-dot" style="background:${p.changed?"#B91C1C":p.risk==="High"?"#B45309":"#94A3B8"}"></div>
+      <span class="pr-num">${p.n}</span><span class="pr-name">${p.name}</span>
+      <span class="pr-icb">${p.icb}</span>
+      <div class="pr-badges"><span class="badge ${rc(p.risk)}">${p.risk}</span>${p.tl!=="NA"?`<span class="badge ${tc(p.tl)}">${p.tl}</span>`:""}</div>
+    </div>`;});
+    html+="</div>";
+  });
+  v.innerHTML=html;
+}
+
+function renderHistory() {
+  const v = document.getElementById("view-hist");
+  if(!weekLog.length){v.innerHTML=`<div class="empty"><div class="empty-icon">📅</div>No weekly updates have been saved yet.</div>`;return;}
+  v.innerHTML=[...weekLog].reverse().map(w=>`<div class="hist-entry">
+    <div class="hist-date">Week commencing ${w.wc||"—"} · ${w.changes||0} change${(w.changes||0)!==1?"s":""}${w.auto?" · automated run":""}</div>
+    <div class="hist-sum">${w.summary||""}</div>
+    ${w.props&&w.props.length?`<div class="hist-chips">${w.props.map(c=>`<span class="badge ${rc(c.risk)}">${c.n}. ${c.name}</span>`).join("")}</div>`:""}</div>`).join("");
+}
+
+function showDetailById(id) {
+  const p = proposals.find(x=>x.id===id);
+  if(!p) return;
+  const panel = document.getElementById("detail");
+  panel.className = "detail show";
+  panel.innerHTML = `
+    <div class="detail-hdr">
+      <div><div class="detail-title">${p.n}. ${p.name}</div><div class="detail-icb">${p.icb} · ${p.region}</div></div>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    ${p.changed&&p.cw?`<div class="detail-change"><div class="detail-change-lbl">What changed this week</div><div class="detail-change-text">${p.cw}</div></div>`:""}
+    <div class="detail-meta">
+      <div class="df"><label>Risk</label><p><span class="badge ${rc(p.risk)}">${p.risk}</span></p></div>
+      <div class="df"><label>Timeline</label><p>${p.tl!=="NA"?`<span class="badge ${tc(p.tl)}">${p.tl}</span>`:p.tl}</p></div>
+      <div class="df"><label>Status</label><p>${p.changed?"Changed — "+p.ct:"Stable"}</p></div>
+      <div class="df"><label>Sources</label><p>${p.sources&&p.sources.length?p.sources.length+" monitored":"—"}</p></div>
+    </div>
+    <div class="divider"></div>
+    <div class="ds"><label>Why this matters</label><p>${p.why}</p></div>
+    <div class="ds"><label>Escalation status</label><p>${p.esc}</p></div>
+    <div class="ds"><label>Action required</label><p>${p.action}</p></div>
+    ${p.sources&&p.sources.length?`<div class="ds"><label>Sources monitored</label><div class="source-list">${p.sources.map(s=>`<a class="source-link" href="${s}" target="_blank">${s.replace("https://","").split("/")[0]}</a>`).join("")}</div></div>`:""}
+  `;
+  panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function closeDetail() { document.getElementById("detail").className="detail"; }
+
+function setTab(t) {
+  ["week","all","hist","about"].forEach(v=>{
+    document.getElementById("view-"+v).style.display=v===t?"block":"none";
+    document.getElementById("tab-"+v).classList.toggle("active",v===t);
+  });
+  if(t==="all") renderAll();
+  if(t==="hist") renderHistory();
+}
+
+loadData();
+</script>
+</body>
+</html>
