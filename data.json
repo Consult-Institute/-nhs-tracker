@@ -1,0 +1,332 @@
+{
+  "lastUpdated": "7 Jun 2026",
+  "weekCommencing": "2026-06-02",
+  "weekLog": [
+    {
+      "wc": "2026-06-02",
+      "changes": 10,
+      "summary": "Automated run: 10 changes found. Liverpool Womens engagement launched 2 June. St Marys Paddington second consultation live. Ward 31A closure 54 days away with no S244 plan.",
+      "auto": true,
+      "props": [
+        {
+          "id": 1,
+          "n": "1",
+          "name": "Scarborough \u2014 Maternity",
+          "risk": "Critical"
+        },
+        {
+          "id": 2,
+          "n": "2",
+          "name": "RCHT Cornwall \u2014 Women & Children's",
+          "risk": "Critical"
+        },
+        {
+          "id": 3,
+          "n": "3",
+          "name": "UHSx Sussex \u2014 Ockenden",
+          "risk": "Critical"
+        },
+        {
+          "id": 4,
+          "n": "4",
+          "name": "CNTW \u2014 Ward 31A eating disorders",
+          "risk": "Critical"
+        },
+        {
+          "id": 5,
+          "n": "5",
+          "name": "NCIC \u2014 Recovery Programme",
+          "risk": "High"
+        },
+        {
+          "id": 7,
+          "n": "7",
+          "name": "University Hospitals Tees",
+          "risk": "High"
+        },
+        {
+          "id": 21,
+          "n": "21",
+          "name": "Liverpool Women's Hospital",
+          "risk": "High"
+        },
+        {
+          "id": 22,
+          "n": "22",
+          "name": "Black Country Healthcare \u2014 Goscote House",
+          "risk": "High"
+        },
+        {
+          "id": 23,
+          "n": "23",
+          "name": "St Mary's Paddington",
+          "risk": "High"
+        },
+        {
+          "id": 29,
+          "n": "29",
+          "name": "BNSSG \u2014 Frenchay Rehab Beds",
+          "risk": "Medium"
+        }
+      ]
+    }
+  ],
+  "proposals": [
+    {
+      "id": 1,
+      "risk": "Critical",
+      "tl": "NOW",
+      "changed": true,
+      "ct": "Estate-driven reduction imminent",
+      "cw": "Trust board confirms service reduction risk from roof failure. No consultation commenced."
+    },
+    {
+      "id": 2,
+      "risk": "Critical",
+      "tl": "NOW",
+      "changed": true,
+      "ct": "OBC window lapsed",
+      "cw": "Spring 2026 OBC window passed. No S244 consultation commenced."
+    },
+    {
+      "id": 3,
+      "risk": "Critical",
+      "tl": "NOW",
+      "changed": true,
+      "ct": "Scope confirmed \u2014 Nottingham imminent",
+      "cw": "Full scope confirmed 1,000+ cases. Nottingham Ockenden report due this month."
+    },
+    {
+      "id": 4,
+      "risk": "Critical",
+      "tl": "NOW",
+      "changed": true,
+      "ct": "54 days to closure",
+      "cw": "Closure 31 July. Engagement started but no formal S244 consultation plan published."
+    },
+    {
+      "id": 5,
+      "risk": "High",
+      "tl": "NOW",
+      "changed": true,
+      "ct": "CQC Section 31 enforcement",
+      "cw": "CQC Section 31 confirmed 21 May. Carlisle ED too small for volume."
+    },
+    {
+      "id": 6,
+      "risk": "High",
+      "tl": "NOW",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 7,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": true,
+      "ct": "Scrutiny raised S244 concerns",
+      "cw": "Stockton select committee 19 May: 558-post cut confirmed. Scrutiny stated consultation must be undertaken."
+    },
+    {
+      "id": 8,
+      "risk": "High",
+      "tl": "UNKNOWN",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 9,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 10,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 11,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 12,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 13,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 14,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 15,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 16,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 17,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 18,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 19,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 20,
+      "risk": "Closed",
+      "tl": "NA",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 21,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": true,
+      "ct": "Engagement launched 2 June \u2014 S244 adequacy contested",
+      "cw": "Six-week engagement launched 2 June-14 July 2026. Three public events. Campaign contesting S244 coverage of longer-term options."
+    },
+    {
+      "id": 22,
+      "risk": "High",
+      "tl": "NOW",
+      "changed": true,
+      "ct": "New \u2014 classification disputed",
+      "cw": "Services from 4 sites relocating summer 2026. Classification as site consolidation disputed."
+    },
+    {
+      "id": 23,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": true,
+      "ct": "Second consultation live 4 June-17 July",
+      "cw": "Second consultation on designs 4 June-17 July 2026. S244 may apply to service model changes."
+    },
+    {
+      "id": 24,
+      "risk": "High",
+      "tl": "NOW",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 25,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 26,
+      "risk": "High",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 27,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 28,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 29,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": true,
+      "ct": "Service withdrawal without S244",
+      "cw": "ICB abandoned Frenchay rehab beds May 2026. No formal significant change assessment published."
+    },
+    {
+      "id": 30,
+      "risk": "High",
+      "tl": "UNKNOWN",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 31,
+      "risk": "Medium",
+      "tl": "UNKNOWN",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    },
+    {
+      "id": 32,
+      "risk": "Medium",
+      "tl": "NEAR",
+      "changed": false,
+      "ct": null,
+      "cw": null
+    }
+  ]
+}
